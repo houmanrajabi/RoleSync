@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Description Input - CV Job Match Analyzer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Enter Job Description</h1>
+            <p class="subtitle">Paste the job description to analyze your match</p>
+        </header>
+
+        <main class="job-input-section">
+            <div class="job-input-card">
+                <form action="/analyze_job" method="post" class="job-form">
+                    <div class="form-group">
+                        <label for="job_description">Job Description *</label>
+                        <textarea
+                            id="job_description"
+                            name="job_description"
+                            rows="15"
+                            placeholder="Paste the complete job description here. Include job title, responsibilities, requirements, qualifications, and any other relevant information..."
+                            required
+                        ></textarea>
+                        <div class="char-counter">
+                            <span id="charCount">0</span> characters
+                        </div>
+                    </div>
+
+                    <div class="tips-section">
+                        <h3>💡 Tips for better analysis:</h3>
+                        <ul>
+                            <li>Include the complete job posting for comprehensive analysis</li>
+                            <li>Make sure required skills and qualifications are clearly listed</li>
+                            <li>Include years of experience requirements if mentioned</li>
+                            <li>Don't forget to include soft skills and cultural requirements</li>
+                        </ul>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="submit-btn">
+                            <span>Analyze Job Match</span>
+                            <svg class="arrow-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </form>
+
+                <div class="sample-section">
+                    <h3>Sample Job Description Format:</h3>
+                    <div class="sample-job">
+                        <p><strong>Job Title:</strong> Senior Software Engineer</p>
+                        <p><strong>Company:</strong> Tech Innovations Inc.</p>
+                        <p><strong>Requirements:</strong></p>
+                        <ul>
+                            <li>5+ years of software development experience</li>
+                            <li>Proficiency in Python, JavaScript, React</li>
+                            <li>Bachelor's degree in Computer Science or related field</li>
+                            <li>Experience with cloud platforms (AWS, GCP)</li>
+                            <li>Strong communication and teamwork skills</li>
+                        </ul>
+                        <p><strong>Responsibilities:</strong> Design and develop scalable web applications...</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Character counter
+        const textarea = document.getElementById('job_description');
+        const charCount = document.getElementById('charCount');
+
+        textarea.addEventListener('input', function() {
+            charCount.textContent = this.value.length;
+        });
+
+        // Form validation
+        document.querySelector('.job-form').addEventListener('submit', function(e) {
+            const jobDescription = document.getElementById('job_description').value.trim();
+
+            if (!jobDescription) {
+                e.preventDefault();
+                alert('Please enter a job description.');
+                return false;
+            }
+
+            if (jobDescription.length < 100) {
+                e.preventDefault();
+                alert('Please provide a more detailed job description (at least 100 characters).');
+                return false;
+            }
+
+            // Show loading state
+            const submitBtn = document.querySelector('.submit-btn');
+            submitBtn.innerHTML = '<span>Analyzing... Please wait</span>';
+            submitBtn.disabled = true;
+        });
+    </script>
+</body>
+</html>

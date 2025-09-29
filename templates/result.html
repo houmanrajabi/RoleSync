@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Match Analysis Results - CV Job Match Analyzer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Job Match Analysis Results</h1>
+            <p class="subtitle">Comprehensive analysis of your CV against the job requirements</p>
+        </header>
+
+        {% if analysis %}
+        <main class="results-section">
+            <!-- Executive Summary -->
+            <div class="result-card summary-card">
+                <div class="card-header">
+                    <h2>Executive Summary</h2>
+                    <div class="match-score">
+                        <span class="score">{{ analysis.match_score }}%</span>
+                        <span class="score-label">Match Score</span>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <div class="recommendation {{ analysis.recommendation.lower().replace(' ', '-') }}">
+                        <strong>Recommendation:</strong> {{ analysis.recommendation }}
+                    </div>
+                    <p class="executive-summary">{{ analysis.executive_summary }}</p>
+                </div>
+            </div>
+
+            <!-- Key Highlights -->
+            <div class="result-card highlights-card">
+                <h3>🌟 Key Highlights</h3>
+                <ul class="highlights-list">
+                    {% for highlight in analysis.key_highlights %}
+                    <li>{{ highlight }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <!-- Main Concerns -->
+            {% if analysis.main_concerns %}
+            <div class="result-card concerns-card">
+                <h3>⚠️ Areas of Concern</h3>
+                <ul class="concerns-list">
+                    {% for concern in analysis.main_concerns %}
+                    <li>{{ concern }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+            <!-- Skills Analysis -->
+            <div class="result-card skills-card">
+                <h3>🔧 Skills Analysis</h3>
+                <div class="skills-grid">
+                    <div class="skill-section">
+                        <h4>Strong Matches</h4>
+                        <div class="skill-tags green">
+                            {% for skill in analysis.skill_summary.strong_matches %}
+                            <span class="skill-tag">{{ skill }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    {% if analysis.skill_summary.skill_gaps %}
+                    <div class="skill-section">
+                        <h4>Skill Gaps</h4>
+                        <div class="skill-tags red">
+                            {% for skill in analysis.skill_summary.skill_gaps %}
+                            <span class="skill-tag">{{ skill }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if analysis.skill_summary.transferable_skills %}
+                    <div class="skill-section">
+                        <h4>Transferable Skills</h4>
+                        <div class="skill-tags blue">
+                            {% for skill in analysis.skill_summary.transferable_skills %}
+                            <span class="skill-tag">{{ skill }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Experience Summary -->
+            <div class="result-card experience-card">
+                <h3>💼 Experience Analysis</h3>
+                <div class="experience-content">
+                    <div class="experience-item">
+                        <strong>Experience Level:</strong> {{ analysis.experience_summary.experience_level }}
+                    </div>
+                    <div class="experience-item">
+                        <strong>Relevant Experience:</strong> {{ analysis.experience_summary.relevant_experience }}
+                    </div>
+                    <div class="experience-item">
+                        <strong>Growth Trajectory:</strong> {{ analysis.experience_summary.growth_trajectory }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Next Steps -->
+            <div class="result-card next-steps-card">
+                <h3>🎯 Next Steps</h3>
+                <div class="next-steps-grid">
+                    {% if analysis.next_steps.interview_recommended %}
+                    <div class="step-section">
+                        <h4>Interview Focus Areas</h4>
+                        <ul>
+                            {% for area in analysis.next_steps.interview_focus %}
+                            <li>{{ area }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+
+                    {% if analysis.next_steps.skills_assessment %}
+                    <div class="step-section">
+                        <h4>Skills to Validate</h4>
+                        <ul>
+                            {% for skill in analysis.next_steps.skills_assessment %}
+                            <li>{{ skill }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Development Plan -->
+            {% if analysis.development_plan %}
+            <div class="result-card development-card">
+                <h3>📈 Development Plan</h3>
+                <div class="development-grid">
+                    {% if analysis.development_plan.immediate_training_needs %}
+                    <div class="development-section">
+                        <h4>First 90 Days</h4>
+                        <ul>
+                            {% for need in analysis.development_plan.immediate_training_needs %}
+                            <li>{{ need }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+
+                    {% if analysis.development_plan.long_term_development %}
+                    <div class="development-section">
+                        <h4>6-12 Months</h4>
+                        <ul>
+                            {% for item in analysis.development_plan.long_term_development %}
+                            <li>{{ item }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Risk Assessment -->
+            {% if analysis.risk_assessment %}
+            <div class="result-card risk-card">
+                <h3>📊 Risk Assessment</h3>
+                <div class="risk-grid">
+                    {% if analysis.risk_assessment.low_risk_factors %}
+                    <div class="risk-section low-risk">
+                        <h4>Low Risk ✅</h4>
+                        <ul>
+                            {% for factor in analysis.risk_assessment.low_risk_factors %}
+                            <li>{{ factor }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+
+                    {% if analysis.risk_assessment.medium_risk_factors %}
+                    <div class="risk-section medium-risk">
+                        <h4>Medium Risk ⚠️</h4>
+                        <ul>
+                            {% for factor in analysis.risk_assessment.medium_risk_factors %}
+                            <li>{{ factor }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+
+                    {% if analysis.risk_assessment.high_risk_factors %}
+                    <div class="risk-section high-risk">
+                        <h4>High Risk ❌</h4>
+                        <ul>
+                            {% for factor in analysis.risk_assessment.high_risk_factors %}
+                            <li>{{ factor }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Additional Notes -->
+            {% if analysis.additional_notes %}
+            <div class="result-card notes-card">
+                <h3>📝 Additional Notes</h3>
+                <p>{{ analysis.additional_notes }}</p>
+            </div>
+            {% endif %}
+
+            <!-- Actions -->
+            <div class="result-actions">
+                <button onclick="window.print()" class="action-btn print-btn">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+                    </svg>
+                    Print Report
+                </button>
+                <a href="/cleanup" class="action-btn new-analysis-btn">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    New Analysis
+                </a>
+            </div>
+        </main>
+
+        {% else %}
+        <main class="error-section">
+            <div class="error-card">
+                <h2>Analysis Error</h2>
+                <p>We couldn't complete the job match analysis. Please try again.</p>
+                <a href="/" class="action-btn">Start Over</a>
+            </div>
+        </main>
+        {% endif %}
+    </div>
+
+    <script>
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Print optimization
+        window.addEventListener('beforeprint', function() {
+            document.body.classList.add('printing');
+        });
+
+        window.addEventListener('afterprint', function() {
+            document.body.classList.remove('printing');
+        });
+    </script>
+</body>
+</html>

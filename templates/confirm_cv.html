@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirm CV Data - CV Job Match Analyzer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Confirm Your CV Information</h1>
+            <p class="subtitle">Please review and edit the extracted information before proceeding</p>
+        </header>
+
+        <main class="confirm-section">
+            <form action="/confirm_cv" method="post" class="confirm-form">
+                <!-- Personal Information -->
+                <div class="form-section">
+                    <h2>Personal Information</h2>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="name">Full Name *</label>
+                            <input type="text" id="name" name="name" value="{{ cv_data.name or '' }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" name="email" value="{{ cv_data.email or '' }}">
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone Number</label>
+                            <input type="tel" id="phone" name="phone" value="{{ cv_data.phone or '' }}">
+                        </div>
+                        <div class="form-group">
+                            <label for="location">Location</label>
+                            <input type="text" id="location" name="location" value="{{ cv_data.location or '' }}">
+                        </div>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="summary">Professional Summary</label>
+                        <textarea id="summary" name="summary" rows="3">{{ cv_data.summary or '' }}</textarea>
+                    </div>
+                </div>
+
+                <!-- Skills -->
+                <div class="form-section">
+                    <h2>Skills</h2>
+                    <div class="dynamic-list" id="skills-list">
+                        {% for skill in cv_data.skills or [] %}
+                        <div class="list-item">
+                            <input type="text" name="skills" value="{{ skill }}" placeholder="Enter skill">
+                            <button type="button" class="remove-btn" onclick="removeItem(this)">×</button>
+                        </div>
+                        {% endfor %}
+                        {% if not cv_data.skills %}
+                        <div class="list-item">
+                            <input type="text" name="skills" placeholder="Enter skill">
+                            <button type="button" class="remove-btn" onclick="removeItem(this)">×</button>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <button type="button" class="add-btn" onclick="addSkill()">+ Add Skill</button>
+                </div>
+
+                <!-- Experience -->
+                <div class="form-section">
+                    <h2>Work Experience</h2>
+                    <div class="experience-list" id="experience-list">
+                        {% for exp in cv_data.experience or [] %}
+                        <div class="experience-item">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label>Job Title</label>
+                                    <input type="text" name="exp_title" value="{{ exp.title or '' }}">
+                                </div>
+                                <div class="form-group">
+                                    <label>Company</label>
+                                    <input type="text" name="exp_company" value="{{ exp.company or '' }}">
+                                </div>
+                                <div class="form-group">
+                                    <label>Start Date</label>
+                                    <input type="text" name="exp_start" value="{{ exp.start_date or '' }}" placeholder="MM/YYYY">
+                                </div>
+                                <div class="form-group">
+                                    <label>End Date</label>
+                                    <input type="text" name="exp_end" value="{{ exp.end_date or '' }}" placeholder="MM/YYYY or Present">
+                                </div>
+                            </div>
+                            <div class="form-group full-width">
+                                <label>Key Responsibilities</label>
+                                <textarea name="exp_responsibilities" rows="3">{% for resp in exp.responsibilities or [] %}{{ resp }}{% if not loop.last %}; {% endif %}{% endfor %}</textarea>
+                            </div>
+                            <button type="button" class="remove-btn" onclick="removeExperience(this)">Remove Experience</button>
+                        </div>
+                        {% endfor %}
+                        {% if not cv_data.experience %}
+                        <div class="experience-item">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label>Job Title</label>
+                                    <input type="text" name="exp_title">
+                                </div>
+                                <div class="form-group">
+                                    <label>Company</label>
+                                    <input type="text" name="exp_company">
+                                </div>
+                                <div class="form-group">
+                                    <label>Start Date</label>
+                                    <input type="text" name="exp_start" placeholder="MM/YYYY">
+                                </div>
+                                <div class="form-group">
+                                    <label>End Date</label>
+                                    <input type="text" name="exp_end" placeholder="MM/YYYY or Present">
+                                </div>
+                            </div>
+                            <div class="form-group full-width">
+                                <label>Key Responsibilities</label>
+                                <textarea name="exp_responsibilities" rows="3"></textarea>
+                            </div>
+                            <button type="button" class="remove-btn" onclick="removeExperience(this)">Remove Experience</button>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <button type="button" class="add-btn" onclick="addExperience()">+ Add Experience</button>
+                </div>
+
+                <!-- Education -->
+                <div class="form-section">
+                    <h2>Education</h2>
+                    <div class="education-list" id="education-list">
+                        {% for edu in cv_data.education or [] %}
+                        <div class="education-item">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label>Degree</label>
+                                    <input type="text" name="edu_degree" value="{{ edu.degree or '' }}">
+                                </div>
+                                <div class="form-group">
+                                    <label>Institution</label>
+                                    <input type="text" name="edu_institution" value="{{ edu.institution or '' }}">
+                                </div>
+                                <div class="form-group">
+                                    <label>Graduation Date</label>
+                                    <input type="text" name="edu_date" value="{{ edu.graduation_date or '' }}" placeholder="MM/YYYY">
+                                </div>
+                                <div class="form-group">
+                                    <label>GPA (Optional)</label>
+                                    <input type="text" name="edu_gpa" value="{{ edu.gpa or '' }}">
+                                </div>
+                            </div>
+                            <button type="button" class="remove-btn" onclick="removeEducation(this)">Remove Education</button>
+                        </div>
+                        {% endfor %}
+                        {% if not cv_data.education %}
+                        <div class="education-item">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label>Degree</label>
+                                    <input type="text" name="edu_degree">
+                                </div>
+                                <div class="form-group">
+                                    <label>Institution</label>
+                                    <input type="text" name="edu_institution">
+                                </div>
+                                <div class="form-group">
+                                    <label>Graduation Date</label>
+                                    <input type="text" name="edu_date" placeholder="MM/YYYY">
+                                </div>
+                                <div class="form-group">
+                                    <label>GPA (Optional)</label>
+                                    <input type="text" name="edu_gpa">
+                                </div>
+                            </div>
+                            <button type="button" class="remove-btn" onclick="removeEducation(this)">Remove Education</button>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <button type="button" class="add-btn" onclick="addEducation()">+ Add Education</button>
+                </div>
+
+                <!-- Certifications -->
+                <div class="form-section">
+                    <h2>Certifications</h2>
+                    <div class="dynamic-list" id="certifications-list">
+                        {% for cert in cv_data.certifications or [] %}
+                        <div class="list-item">
+                            <input type="text" name="certifications" value="{{ cert.name or cert }}" placeholder="Enter certification">
+                            <button type="button" class="remove-btn" onclick="removeItem(this)">×</button>
+                        </div>
+                        {% endfor %}
+                        <div class="list-item">
+                            <input type="text" name="certifications" placeholder="Enter certification">
+                            <button type="button" class="remove-btn" onclick="removeItem(this)">×</button>
+                        </div>
+                    </div>
+                    <button type="button" class="add-btn" onclick="addCertification()">+ Add Certification</button>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="submit-btn">
+                        <span>Proceed to Job Analysis</span>
+                        <svg class="arrow-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </button>
+                </div>
+            </form>
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='confirm.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CV Job Match Analyzer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>CV Job Match Analyzer</h1>
+            <p class="subtitle">AI-powered analysis to match your CV with job opportunities</p>
+        </header>
+
+        <main class="upload-section">
+            <div class="upload-card">
+                <h2>Upload Your CV</h2>
+                <p>Start by uploading your CV in PDF format. Our AI will extract and analyze your professional information.</p>
+
+                <form action="/upload_cv" method="post" enctype="multipart/form-data" class="upload-form">
+                    <div class="file-input-wrapper">
+                        <label for="cv_file" class="file-input-label">
+                            <svg class="upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                            </svg>
+                            Choose PDF File
+                        </label>
+                        <input type="file" id="cv_file" name="cv_file" accept=".pdf" required>
+                        <div class="file-name" id="fileName"></div>
+                    </div>
+
+                    <button type="submit" class="submit-btn">
+                        <span>Analyze CV</span>
+                        <svg class="arrow-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </button>
+                </form>
+
+                <div class="info-section">
+                    <h3>How it works:</h3>
+                    <ol class="process-steps">
+                        <li><strong>Upload:</strong> Submit your CV as a PDF file</li>
+                        <li><strong>Review:</strong> Confirm the extracted information is accurate</li>
+                        <li><strong>Match:</strong> Input a job description for comparison</li>
+                        <li><strong>Analyze:</strong> Get detailed match analysis and recommendations</li>
+                    </ol>
+                </div>
+
+                <div class="privacy-note">
+                    <p><strong>Privacy:</strong> Your CV data is processed locally and not stored permanently. All analysis is done securely.</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // File input handling
+        const fileInput = document.getElementById('cv_file');
+        const fileName = document.getElementById('fileName');
+
+        fileInput.addEventListener('change', function(e) {
+            if (e.target.files.length > 0) {
+                fileName.textContent = e.target.files[0].name;
+                fileName.style.display = 'block';
+            } else {
+                fileName.style.display = 'none';
+            }
+        });
+
+        // Form validation
+        document.querySelector('.upload-form').addEventListener('submit', function(e) {
+            const fileInput = document.getElementById('cv_file');
+            if (!fileInput.files.length) {
+                e.preventDefault();
+                alert('Please select a PDF file to upload.');
+                return false;
+            }
+
+            const file = fileInput.files[0];
+            if (!file.name.toLowerCase().endsWith('.pdf')) {
+                e.preventDefault();
+                alert('Please upload a PDF file only.');
+                return false;
+            }
+
+            if (file.size > 16 * 1024 * 1024) { // 16MB limit
+                e.preventDefault();
+                alert('File size must be less than 16MB.');
+                return false;
+            }
+        });
+    </script>
+</body>
+</html>
