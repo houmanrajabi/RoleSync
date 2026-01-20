@@ -1,142 +1,71 @@
 # CV Job Match Analyzer
 
-A modular Flask application integrated with LangGraph that orchestrates a multi-step, human-in-the-loop workflow for analyzing job fit. Upload your CV, confirm extracted data, input job descriptions, and get comprehensive match analysis powered by AI.
+This project is a **human-in-the-loop** workflow designed to align resumes with job descriptions accurately. 
 
-## Features
+It uses **LangGraph** to orchestrate a multi-step process that parses the data, **pauses** to let you verify and edit the extracted skills, and only *then* proceeds to the matching analysis.
 
-- **PDF CV Processing**: Upload PDF CVs and extract structured data using AI
-- **Human-in-the-loop Validation**: Review and confirm extracted CV information before analysis
-- **Job Description Analysis**: Parse job requirements and qualifications automatically
-- **Comprehensive Matching**: AI-powered comparison between CV and job requirements
-- **Detailed Reporting**: Get match scores, skill analysis, recommendations, and development plans
-- **Professional UI**: Clean, responsive web interface with modern design
+## Logic
 
-## Tech Stack
+The core of this application isn't just the web server; it's the state graph defined in `graph.py`. The workflow moves through specific nodes:
 
-- **Backend**: Flask, LangGraph, OpenAI GPT-4
-- **PDF Processing**: PyPDF2
-- **Frontend**: HTML5, CSS3, JavaScript
-- **AI Integration**: LangChain, OpenAI API
-
-## Usage
-
-1. **Start the application**
-   ```bash
-   python app.py
-   ```
-
-2. **Access the web interface**
-   Open your browser and go to `http://localhost:5000`
-
-3. **Upload your CV**
-   - Upload a PDF version of your CV
-   - The AI will extract structured information
-
-4. **Confirm extracted data**
-   - Review and edit the extracted information
-   - Add or modify skills, experience, education, etc.
-
-5. **Input job description**
-   - Paste the job description you want to match against
-   - Include all requirements and qualifications
-
-6. **Get analysis results**
-   - Receive detailed match analysis
-   - View skill alignments, gaps, and recommendations
-   - Print or save the report
+1.  **Extraction:** The system reads the PDF.
+2.  **Interrupt:** The graph halts execution. The Flask UI renders the extracted data, allowing you to fix OCR errors or add missing context.
+3.  **Resumption:** Once you confirm the data via the UI, the graph resumes.
+4.  **Analysis:** It parses the Job Description and performs a semantic comparison against your verified profile.
 
 ## Project Structure
 
-```
+The codebase is organized around the LangGraph workflow. If you are looking to modify the logic, change it in `graph.py`.
+
+```text
 cv_job_match/
-├── app.py                # Main Flask application
-├── graph.py              # LangGraph workflow definition
-├── nodes/                # Workflow node implementations
-│   ├── parse_cv.py       # CV parsing with AI
-│   ├── confirm_cv.py     # Human confirmation node
-│   ├── parse_job.py      # Job description parsing
-│   ├── compare.py        # CV-Job comparison analysis
-│   └── summary.py        # Final analysis generation
-├── templates/            # HTML templates
-│   ├── index.html        # Home page
-│   ├── confirm_cv.html   # CV confirmation page
-│   ├── job_input.html    # Job description input
-│   └── result.html       # Results display
-├── static/               # CSS and JS files
-│   ├── style.css         # Main stylesheet
-│   └── confirm.js        # CV confirmation interactions
-├── utils/                # Utility functions
-│   └── pdf_parser.py     # PDF text extraction
-├── uploads/              # Temporary file storage
-├── requirements.txt      # Python dependencies
-├── .env.example          # Environment variables template
-└── README.md            # This file
+├── app.py                 # Entry point. Handles the Flask routes and triggers graph events.
+├── graph.py               # PIVOTAL: Defines the StateGraph, edges, and workflow logic.
+├── nodes/                 # Individual units of logic called by the graph:
+│   ├── parse_cv.py        # Extracts raw text -> structured JSON.
+│   ├── confirm_cv.py      # The breakpoint node for human intervention.
+│   ├── parse_job.py       # Structures the job description (requirements vs. nice-to-haves).
+│   ├── compare.py         # The logic engine: maps CV skills to job description requirements.
+│   └── summary.py         # Generates the final readable report.
+├── utils/
+│   └── pdf_parser.py      # PDF text extraction wrapper.
+└── templates/             # Frontend UI.
+```
+## Setup
+- Python 3.8+
+- An OpenAI API Key (GPT-4 is recommended for complex reasoning)
+
+```sh
+pip install -r requirements.txt
 ```
 
-## Workflow
-
-1. **PDF Upload & Parsing**: User uploads CV PDF → AI extracts structured data
-2. **Human Validation**: User reviews and confirms extracted information
-3. **Job Input**: User provides job description for comparison
-4. **AI Analysis**: System compares CV against job requirements
-5. **Results**: Comprehensive match analysis with recommendations
-
-## API Endpoints
-
-- `GET /` - Home page with CV upload
-- `POST /upload_cv` - Process uploaded CV PDF
-- `POST /confirm_cv` - Handle confirmed CV data
-- `POST /analyze_job` - Analyze job match
-- `GET /cleanup` - Clean up session data
-
-## Configuration
-
-### Environment Variables
-
-- `OPENAI_API_KEY`: Your OpenAI API key for GPT-4 access
-- `FLASK_SECRET_KEY`: Secret key for Flask sessions
-- `FLASK_ENV`: Environment (development/production)
-- `MAX_CONTENT_LENGTH`: Maximum file upload size (default: 16MB)
-
-### Model Configuration
-
-The application uses GPT-4 by default. You can modify the model in the node files:
-
-```python
-llm = ChatOpenAI(model="gpt-4", temperature=0)
+### .env file in the root directory
+```text
+OPENAI_API_KEY=sk-your-key-here
+FLASK_SECRET_KEY=dev-key-here
 ```
+Note: You can swap the model in the nodes/ files if you want to test with different LLMs.
 
-## Features in Detail
+## launch
+```sh
+python app.py
+```
+Visit http://localhost:5000
 
-### CV Processing
-- Extracts personal information, skills, experience, education, certifications
-- Handles various PDF formats and layouts
-- Validates and structures unorganized CV data
+## output
+application doesn't just give a "percentage match." Because of the structured node approach, the final report breaks down:
+- Evidence: Direct quotes from your CV that match requirements.
+- Gap Analysis: Specific skills found in the job description but missing from the verified CV data.
+- Strategy: Recommendations on how to bridge those gaps before the interview.
 
-### Job Analysis
-- Parses job descriptions for requirements and qualifications
-- Distinguishes between required vs. preferred skills
-- Extracts experience levels, education requirements, technologies
+## tools
+* Orchestration: LangGraph (State management & interruptions)
+* Analysis: LangChain + OpenAI GPT-4
+* Interface: Flask (handling the user verification step)
+* Processing: PyPDF2
 
-### Match Analysis
-- Comprehensive skill comparison with evidence from CV
-- Experience relevance assessment
-- Education and certification matching
-- Risk assessment and hiring recommendations
-- Development plan suggestions
-
-### Reporting
-- Executive summary with match score and recommendation
-- Detailed skill gap analysis
-- Interview focus areas
-- Reference check recommendations
-- Professional development roadmap
-
-## License
-
-This project is licensed under the MIT License 
-
-## Security Notes
-
+### Security Notes
 - CV data is processed locally and not stored permanently
 - Sessions are cleaned up after analysis
+
+
